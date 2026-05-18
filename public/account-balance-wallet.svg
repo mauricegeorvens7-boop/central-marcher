@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 180" role="img" aria-label="Solde du compte">
+  <g fill="none" stroke="#020617" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M38 61h149c17 0 31 14 31 31v42c0 17-14 31-31 31H50c-17 0-31-14-31-31V78c0-9 8-17 17-17h2z"/>
+    <path d="M38 61c-10 0-19 8-19 19s9 19 19 19h147c18 0 33 15 33 33"/>
+    <path d="M59 61l9-39 91 39"/>
+    <path d="M40 80h147"/>
+    <path d="M176 112h42c8 0 15 7 15 15v24c0 8-7 15-15 15h-42l-18-27 18-27z"/>
+    <circle cx="190" cy="139" r="9"/>
+    <path d="M19 117v16"/>
+  </g>
+</svg>

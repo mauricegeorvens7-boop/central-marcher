@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  customer
+}
+
+enum ProductStatus {
+  active
+  draft
+  hidden
+}
+
+enum BannerPosition {
+  homepage_hero
+  category_banner
+  promo_banner
+}
+
+enum AnnouncementType {
+  top_bar
+  popup
+  product_promo
+  homepage_section
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(customer)
+  phone        String?
+  profilePhoto String?
+  notifications String @default("{\"email\":true,\"sms\":false,\"deals\":true}")
+  settings     String @default("{\"language\":\"fr\",\"currency\":\"CAD\",\"theme\":\"light\"}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+  addresses    UserAddress[]
+  favorites    Favorite[]
+  recentlyViewed RecentlyViewed[]
+}
+
+model UserAddress {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  name       String
+  line1      String
+  city       String
+  province   String
+  postalCode String
+  phone      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id               String        @id @default(cuid())
+  name             String
+  slug             String        @unique
+  sku              String        @unique
+  price            Float
+  promoPrice       Float?
+  shortDescription String
+  description      String
+  benefitsAndUsage String?
+  seoTitle         String?
+  seoDescription   String?
+  keywords         String?
+  categoryId       String
+  category         Category      @relation(fields: [categoryId], references: [id])
+  stock            Int
+  status           ProductStatus @default(draft)
+  brand            String        @default("Central Market")
+  condition        String        @default("New")
+  color            String?
+  size             String?
+  model            String?
+  images           ProductImage[]
+  orderItems       OrderItem[]
+  favorites        Favorite[]
+  recentlyViewed   RecentlyViewed[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String?
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Banner {
+  id        String         @id @default(cuid())
+  title     String
+  subtitle  String
+  imageUrl  String
+  publicId  String?
+  ctaText   String
+  ctaLink   String
+  position  BannerPosition @default(homepage_hero)
+  active    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Announcement {
+  id        String           @id @default(cuid())
+  text      String
+  link      String?
+  imageUrl  String?
+  publicId  String?
+  type      AnnouncementType @default(top_bar)
+  startDate DateTime
+  endDate   DateTime
+  active    Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  orderNo   String      @unique
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  status    String      @default("pending")
+  total     Float
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
