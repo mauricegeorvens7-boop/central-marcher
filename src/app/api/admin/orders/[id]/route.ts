@@ -10,7 +10,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const body = await request.json().catch(() => ({}));
   const status = String(body.status || "");
   const note = body.note ? String(body.note) : null;
-  const order = updateOrderStatus({ id, status, note });
+  const order = await updateOrderStatus({ id, status, note });
 
   if (!order) return NextResponse.json({ error: "Commande introuvable ou statut invalide." }, { status: 400 });
   return NextResponse.json({ order });

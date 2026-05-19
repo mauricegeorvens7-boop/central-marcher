@@ -7,9 +7,10 @@ export const metadata = { title: "Admin announcements" };
 
 export default async function AdminAnnouncementsPage() {
   await requireAdmin();
+  const announcements = await getAnnouncements(true);
   return (
     <AdminShell title="Gestion annonces">
-      <AnnouncementManager announcements={getAnnouncements(true)} />
+      <AnnouncementManager announcements={announcements} />
     </AdminShell>
   );
 }

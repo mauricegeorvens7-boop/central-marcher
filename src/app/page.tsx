@@ -9,10 +9,10 @@ import { getAnnouncements, getBanners, getProducts } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const products = getProducts().map(dbProductToProduct);
-  const banners = getBanners().filter((banner) => banner.position === "homepage_hero");
-  const announcements = getAnnouncements();
+export default async function Home() {
+  const [dbProducts, allBanners, announcements] = await Promise.all([getProducts(), getBanners(), getAnnouncements()]);
+  const products = dbProducts.map(dbProductToProduct);
+  const banners = allBanners.filter((banner) => banner.position === "homepage_hero");
   const deals = products.filter((product) => product.oldPrice).slice(0, 4);
   const bestSellers = products.filter((product) => product.rating >= 4.6).slice(0, 4);
   const openBox = products.filter((product) => product.condition !== "New").slice(0, 4);

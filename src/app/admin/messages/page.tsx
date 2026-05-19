@@ -8,8 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminMessagesPage() {
   await requireAdmin();
-  const transactions = getPaymentTransactions();
-  const tickets = getSupportTickets();
+  const [transactions, tickets] = await Promise.all([getPaymentTransactions(), getSupportTickets()]);
   const messages = transactions.map((tx) => ({
     id: tx.id,
     transactionNo: tx.transactionNo,

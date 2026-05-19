@@ -8,9 +8,9 @@ export const metadata = { title: "Admin dashboard" };
 
 export default async function AdminPage() {
   await requireAdmin();
-  const stats = getAdminStats();
-  const recentProducts = getProducts({ includeHidden: true }).slice(0, 5);
-  const recentOrders = getOrders().slice(0, 5);
+  const [stats, products, orders] = await Promise.all([getAdminStats(), getProducts({ includeHidden: true }), getOrders()]);
+  const recentProducts = products.slice(0, 5);
+  const recentOrders = orders.slice(0, 5);
 
   return (
     <AdminShell title="Dashboard admin">

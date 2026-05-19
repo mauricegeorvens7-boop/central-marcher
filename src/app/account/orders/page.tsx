@@ -17,7 +17,7 @@ function clientStatus(status: string) {
 
 export default async function OrdersPage() {
   const user = await requireUser();
-  const orders = getAllOrdersForUser(user.id);
+  const orders = await getAllOrdersForUser(user.id);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">

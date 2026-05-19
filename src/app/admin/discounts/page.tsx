@@ -7,9 +7,10 @@ export const metadata = { title: "Admin discounts" };
 
 export default async function AdminDiscountsPage() {
   await requireAdmin();
+  const discounts = await getDiscounts(true);
   return (
     <AdminShell title="Gestion réductions">
-      <DiscountManager discounts={getDiscounts(true)} />
+      <DiscountManager discounts={discounts} />
     </AdminShell>
   );
 }

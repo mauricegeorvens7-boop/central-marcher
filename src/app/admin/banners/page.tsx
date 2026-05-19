@@ -7,9 +7,10 @@ export const metadata = { title: "Admin banners" };
 
 export default async function AdminBannersPage() {
   await requireAdmin();
+  const banners = await getBanners(true);
   return (
     <AdminShell title="Gestion banners">
-      <BannerManager banners={getBanners(true)} />
+      <BannerManager banners={banners} />
     </AdminShell>
   );
 }

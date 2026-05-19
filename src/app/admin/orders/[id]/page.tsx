@@ -28,7 +28,7 @@ const orderStatusStyles: Record<string, string> = {
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
-  const order = getAdminOrderById(id);
+  const order = await getAdminOrderById(id);
   if (!order) notFound();
 
   const status = displayStatus(order.fulfillmentStatus);

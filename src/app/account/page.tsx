@@ -32,12 +32,16 @@ export const dynamic = "force-dynamic";
 export default async function AccountPage() {
   const user = await requireUser();
   const firstName = user.name.split(" ")[0] || user.name;
-  const orders = getOrdersForUser(user.id);
-  const favorites = getFavoritesForUser(user.id).map(dbProductToProduct);
-  const recentlyViewed = getRecentlyViewedForUser(user.id).map(dbProductToProduct);
-  const addresses = getAddressesForUser(user.id);
-  const transactions = getPaymentTransactionsForUser(user.id);
-  const paymentSettings = getPaymentSettings();
+  const [orders, favoriteProducts, recentlyViewedProducts, addresses, transactions, paymentSettings] = await Promise.all([
+    getOrdersForUser(user.id),
+    getFavoritesForUser(user.id),
+    getRecentlyViewedForUser(user.id),
+    getAddressesForUser(user.id),
+    getPaymentTransactionsForUser(user.id),
+    getPaymentSettings(),
+  ]);
+  const favorites = favoriteProducts.map(dbProductToProduct);
+  const recentlyViewed = recentlyViewedProducts.map(dbProductToProduct);
   const notifications = JSON.parse(user.notifications || "{}") as Record<string, boolean>;
   const deliveryAlerts = orders.map((order) => {
     const status = order.fulfillmentStatus === "Processing" ? "En cours" : order.fulfillmentStatus === "Delivered" ? "Livrée" : order.fulfillmentStatus;

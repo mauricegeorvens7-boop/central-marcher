@@ -6,7 +6,7 @@ export async function PATCH(request: NextRequest) {
   const guard = await requireSellerApi();
   if (guard.response) return guard.response;
   const body = await request.json().catch(() => ({}));
-  const seller = updateSellerProfile(guard.seller.id, {
+  const seller = await updateSellerProfile(guard.seller.id, {
     storeName: String(body.storeName || guard.seller.storeName),
     contactName: String(body.contactName || guard.seller.contactName),
     phone: body.phone ? String(body.phone) : null,

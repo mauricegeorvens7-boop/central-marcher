@@ -5,7 +5,7 @@ import { deleteUserAddress, saveUserAddress } from "@/lib/db";
 export async function POST(request: NextRequest) {
   const user = await requireUser();
   const body = await request.json().catch(() => ({}));
-  const id = saveUserAddress(user.id, {
+  const id = await saveUserAddress(user.id, {
     id: body.id ? String(body.id) : undefined,
     label: String(body.label || "Maison"),
     name: String(body.name || user.name),
@@ -24,6 +24,6 @@ export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Adresse manquante." }, { status: 400 });
-  deleteUserAddress(user.id, id);
+  await deleteUserAddress(user.id, id);
   return NextResponse.json({ ok: true });
 }

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SellerSalesPage() {
   const { seller } = await requireSeller();
-  const orders = getOrdersForSeller(seller.id);
+  const orders = await getOrdersForSeller(seller.id);
   return (
     <SellerShell seller={seller} title="Ventes vendeur">
       <section className="panel">

@@ -6,8 +6,8 @@ import { getProducts } from "@/lib/db";
 export const metadata = { title: "Open Box and Refurbished" };
 export const dynamic = "force-dynamic";
 
-export default function OpenBoxPage() {
-  const products = getProducts().map(dbProductToProduct);
+export default async function OpenBoxPage() {
+  const products = (await getProducts()).map(dbProductToProduct);
   return (
     <>
       <PageHero

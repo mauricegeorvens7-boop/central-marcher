@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SellerMessagesPage() {
   const { seller } = await requireSeller();
-  const tickets = getTicketsForSeller(seller.id);
+  const tickets = await getTicketsForSeller(seller.id);
   return (
     <SellerShell seller={seller} title="Messages clients">
       <section className="panel">

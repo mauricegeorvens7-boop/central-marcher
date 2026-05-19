@@ -5,12 +5,13 @@ import { getPaymentSettings, getPaymentTransactions, savePaymentSettings } from 
 export async function GET() {
   const guard = await requireAdminApi();
   if (guard.response) return guard.response;
-  return NextResponse.json({ settings: getPaymentSettings(), transactions: getPaymentTransactions() });
+  const [settings, transactions] = await Promise.all([getPaymentSettings(), getPaymentTransactions()]);
+  return NextResponse.json({ settings, transactions });
 }
 
 export async function PUT(request: NextRequest) {
   const guard = await requireAdminApi();
   if (guard.response) return guard.response;
   const body = await request.json().catch(() => ({}));
-  return NextResponse.json({ settings: savePaymentSettings(body) });
+  return NextResponse.json({ settings: await savePaymentSettings(body) });
 }

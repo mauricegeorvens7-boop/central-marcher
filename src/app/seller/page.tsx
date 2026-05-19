@@ -8,8 +8,8 @@ export const metadata = { title: "Seller dashboard" };
 
 export default async function SellerDashboardPage() {
   const { seller } = await requireSeller();
-  const stats = getSellerStats(seller.id);
-  const products = getProducts({ includeHidden: true, sellerId: seller.id }).slice(0, 5);
+  const [stats, sellerProducts] = await Promise.all([getSellerStats(seller.id), getProducts({ includeHidden: true, sellerId: seller.id })]);
+  const products = sellerProducts.slice(0, 5);
   return (
     <SellerShell seller={seller} title="Dashboard vendeur">
       <div className="grid gap-4 md:grid-cols-4">

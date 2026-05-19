@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing checkout information." }, { status: 400 });
   }
 
-  const settings = getPaymentSettings();
+  const settings = await getPaymentSettings();
   if (method === "moncash" && !settings.moncashEnabled) return NextResponse.json({ error: "MonCash is disabled." }, { status: 400 });
   if (method === "natcash" && !settings.natcashEnabled) return NextResponse.json({ error: "NatCash is disabled." }, { status: 400 });
   if (method === "cash_on_delivery" && !settings.cashOnDeliveryEnabled) return NextResponse.json({ error: "Cash on delivery is disabled." }, { status: 400 });
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
   try {
     if (method === "balance") {
       if (!user) return NextResponse.json({ error: "Login required for account balance payment." }, { status: 401 });
-      if (!debitUserBalance(user.id, amount)) return NextResponse.json({ error: "Solde insuffisant." }, { status: 400 });
-      const result = createOrderWithTransaction({
+      if (!(await debitUserBalance(user.id, amount))) return NextResponse.json({ error: "Solde insuffisant." }, { status: 400 });
+      const result = await createOrderWithTransaction({
         userId: user.id,
         method: "balance",
         status: "paid",
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       const file = formData.get("proof");
       if (!(file instanceof File)) return NextResponse.json({ error: "Payment proof image is required." }, { status: 400 });
       const uploaded = await uploadProof(file);
-      const result = createOrderWithTransaction({
+      const result = await createOrderWithTransaction({
         userId: user?.id || null,
         method,
         status: "pending",
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (method === "cash_on_delivery") {
-      const result = createOrderWithTransaction({
+      const result = await createOrderWithTransaction({
         userId: user?.id || null,
         method: "cash_on_delivery",
         status: "pending",

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const name = categories.find((category) => slugify(category) === slug) ?? "Products";
-  const categoryProducts = getProducts({ categorySlug: slug }).map(dbProductToProduct);
+  const categoryProducts = (await getProducts({ categorySlug: slug })).map(dbProductToProduct);
 
   return (
     <>

@@ -16,7 +16,7 @@ export default async function ProductsPage({
   searchParams: Promise<{ q?: string; sort?: string }>;
 }) {
   const params = await searchParams;
-  const products = getProducts().map(dbProductToProduct);
+  const products = (await getProducts()).map(dbProductToProduct);
   const query = params.q?.toLowerCase() ?? "";
   const filtered = query
     ? products.filter((product) =>

@@ -6,7 +6,7 @@ import { getProducts, saveProduct } from "@/lib/db";
 export async function GET() {
   const guard = await requireAdminApi();
   if (guard.response) return guard.response;
-  return NextResponse.json({ products: getProducts({ includeHidden: true }) });
+  return NextResponse.json({ products: await getProducts({ includeHidden: true }) });
 }
 
 export async function POST(request: NextRequest) {
@@ -16,5 +16,5 @@ export async function POST(request: NextRequest) {
   const parsed = productSchema.safeParse(await request.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "Invalid product", issues: parsed.error.flatten() }, { status: 400 });
 
-  return NextResponse.json({ product: saveProduct(parsed.data) });
+  return NextResponse.json({ product: await saveProduct(parsed.data) });
 }

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminCustomersPage() {
   await requireAdmin();
-  const customers = getCustomers();
+  const customers = await getCustomers();
 
   return (
     <AdminShell title="Gestion clients">

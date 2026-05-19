@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   const subject = String(body.subject || "");
   const message = String(body.message || "");
   if (!name || !email || !subject || !message) return NextResponse.json({ error: "Message incomplet." }, { status: 400 });
-  const ticket = createSupportTicket({ userId: user?.id || null, name, email, subject, message });
+  const ticket = await createSupportTicket({ userId: user?.id || null, name, email, subject, message });
 
   return NextResponse.json({
     ok: true,

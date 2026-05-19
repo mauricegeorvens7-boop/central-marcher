@@ -8,9 +8,10 @@ export const metadata = { title: "Admin sellers" };
 
 export default async function AdminSellersPage() {
   await requireAdmin();
+  const sellers = await getSellers();
   return (
     <AdminShell title="Gestion vendeurs">
-      <SellerManager sellers={getSellers()} />
+      <SellerManager sellers={sellers} />
     </AdminShell>
   );
 }

@@ -7,8 +7,11 @@ export const dynamic = "force-dynamic";
 
 export default async function CheckoutPage() {
   const user = await getCurrentUser();
-  const settings = getPaymentSettings();
-  const defaultAddress = user ? getAddressesForUser(user.id)[0] : null;
+  const [settings, addresses] = await Promise.all([
+    getPaymentSettings(),
+    user ? getAddressesForUser(user.id) : Promise.resolve([]),
+  ]);
+  const defaultAddress = addresses[0] || null;
   return (
     <CheckoutClient
       settings={{

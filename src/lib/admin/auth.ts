@@ -39,7 +39,7 @@ function verifyToken(token?: string) {
 }
 
 export async function loginUser(email: string, password: string) {
-  const user = getUserByEmail(email);
+  const user = await getUserByEmail(email);
   if (!user) return null;
   if ("account_status" in user && user.account_status && user.account_status !== "active") return null;
   const valid = await bcrypt.compare(password, user.password_hash);
@@ -52,7 +52,7 @@ export async function getCurrentUser() {
   const token = cookieStore.get(COOKIE_NAME)?.value;
   const payload = verifyToken(token);
   if (!payload) return null;
-  return getUserById(payload.userId) ?? null;
+  return (await getUserById(payload.userId)) ?? null;
 }
 
 export async function getCurrentAdmin() {
@@ -63,7 +63,7 @@ export async function getCurrentAdmin() {
 export async function getCurrentSeller() {
   const user = await getCurrentUser();
   if (user?.role !== "seller") return null;
-  const seller = getSellerByUserId(user.id);
+  const seller = await getSellerByUserId(user.id);
   if (!seller || seller.status !== "active") return null;
   return { user, seller };
 }

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { dbProductToProduct } from "@/lib/adapters";
 import { getProducts } from "@/lib/db";
 
-export function GET() {
-  const products = getProducts().map(dbProductToProduct);
+export async function GET() {
+  const products = (await getProducts()).map(dbProductToProduct);
   return NextResponse.json({
     data: products,
     meta: {

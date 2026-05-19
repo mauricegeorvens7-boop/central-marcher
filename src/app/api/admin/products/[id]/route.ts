@@ -9,13 +9,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const parsed = productSchema.safeParse({ ...(await request.json().catch(() => ({}))), id });
   if (!parsed.success) return NextResponse.json({ error: "Invalid product", issues: parsed.error.flatten() }, { status: 400 });
-  return NextResponse.json({ product: saveProduct(parsed.data) });
+  return NextResponse.json({ product: await saveProduct(parsed.data) });
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const guard = await requireAdminApi();
   if (guard.response) return guard.response;
   const { id } = await params;
-  deleteProduct(id);
+  await deleteProduct(id);
   return NextResponse.json({ ok: true });
 }

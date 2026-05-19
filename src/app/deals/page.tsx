@@ -7,8 +7,8 @@ import { getProducts } from "@/lib/db";
 export const metadata = { title: "Deals" };
 export const dynamic = "force-dynamic";
 
-export default function DealsPage() {
-  const products = getProducts().map(dbProductToProduct);
+export default async function DealsPage() {
+  const products = (await getProducts()).map(dbProductToProduct);
   const deals = products.filter((product) => product.oldPrice);
   return (
     <>

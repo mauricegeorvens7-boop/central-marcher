@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (guard.response) return guard.response;
   const { id } = await params;
   const body = await request.json().catch(() => ({}));
-  const seller = updateSellerStatus(id, body.status);
+  const seller = await updateSellerStatus(id, body.status);
   if (!seller) return NextResponse.json({ error: "Seller not found" }, { status: 404 });
   return NextResponse.json({ seller });
 }
@@ -27,6 +27,6 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const guard = await requireAdminApi();
   if (guard.response) return guard.response;
   const { id } = await params;
-  deleteSeller(id);
+  await deleteSeller(id);
   return NextResponse.json({ ok: true });
 }

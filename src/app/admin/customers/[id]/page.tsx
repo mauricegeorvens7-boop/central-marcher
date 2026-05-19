@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminCustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
-  const profile = getCustomerAdminProfile(id);
+  const profile = await getCustomerAdminProfile(id);
   if (!profile) notFound();
   const { user, addresses, orders, transactions, tickets } = profile;
 

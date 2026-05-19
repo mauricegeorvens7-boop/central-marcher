@@ -7,9 +7,11 @@ export const metadata = { title: "Paramètres compte" };
 
 export default async function AccountSettingsPage() {
   const user = await requireUser();
-  const addresses = getAddressesForUser(user.id);
-  const transactions = getPaymentTransactionsForUser(user.id);
-  const tickets = getSupportTicketsForUser(user.id);
+  const [addresses, transactions, tickets] = await Promise.all([
+    getAddressesForUser(user.id),
+    getPaymentTransactionsForUser(user.id),
+    getSupportTicketsForUser(user.id),
+  ]);
 
   return (
     <AccountSettingsClient

@@ -28,7 +28,7 @@ function clientMessage(status: string) {
 export default async function OrderTrackingPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
   const { id } = await params;
-  const order = getOrderForUserById(user.id, id);
+  const order = await getOrderForUserById(user.id, id);
   if (!order) notFound();
 
   const status = normalizedStatus(order.fulfillmentStatus);

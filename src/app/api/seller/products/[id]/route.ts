@@ -7,7 +7,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const guard = await requireSellerApi();
   if (guard.response) return guard.response;
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
   if (!product || product.sellerId !== guard.seller.id) return NextResponse.json({ error: "Product not found" }, { status: 404 });
   const body = await request.json().catch(() => ({}));
   const parsed = productSchema.safeParse({
@@ -28,15 +28,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     model: body.model || "",
   });
   if (!parsed.success) return NextResponse.json({ error: "Invalid product", issues: parsed.error.flatten() }, { status: 400 });
-  return NextResponse.json({ product: saveProduct({ ...parsed.data, sellerId: guard.seller.id }) });
+  return NextResponse.json({ product: await saveProduct({ ...parsed.data, sellerId: guard.seller.id }) });
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const guard = await requireSellerApi();
   if (guard.response) return guard.response;
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
   if (!product || product.sellerId !== guard.seller.id) return NextResponse.json({ error: "Product not found" }, { status: 404 });
-  deleteProduct(id);
+  await deleteProduct(id);
   return NextResponse.json({ ok: true });
 }

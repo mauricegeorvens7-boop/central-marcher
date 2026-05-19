@@ -9,7 +9,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const body = await request.json().catch(() => ({}));
   const status = String(body.status || "");
   if (!["active", "suspended", "banned"].includes(status)) return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
-  const user = updateCustomerStatus(id, status as "active" | "suspended" | "banned");
+  const user = await updateCustomerStatus(id, status as "active" | "suspended" | "banned");
   if (!user) return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
   return NextResponse.json({ user });
 }

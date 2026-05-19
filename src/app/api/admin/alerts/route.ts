@@ -8,8 +8,9 @@ export async function GET() {
   const guard = await requireAdminApi();
   if (guard.response) return guard.response;
 
-  const latestOrder = getAdminOrders()[0];
-  const latestPayment = getPaymentTransactions()
+  const [orders, payments] = await Promise.all([getAdminOrders(), getPaymentTransactions()]);
+  const latestOrder = orders[0];
+  const latestPayment = payments
     .filter((tx) => tx.status === "pending" && (tx.type === "recharge" || tx.method === "moncash" || tx.method === "natcash"))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 

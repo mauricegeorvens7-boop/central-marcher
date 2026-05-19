@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   const amount = Number(formData.get("amount") || 0);
   const payerPhone = String(formData.get("payerPhone") || "");
   const file = formData.get("proof");
-  const settings = getPaymentSettings();
+  const settings = await getPaymentSettings();
 
   if (method === "moncash" && !settings.moncashEnabled) return NextResponse.json({ error: "MonCash is disabled." }, { status: 400 });
   if (method === "natcash" && !settings.natcashEnabled) return NextResponse.json({ error: "NatCash is disabled." }, { status: 400 });
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     stream.end(buffer);
   });
 
-  const result = createOrderWithTransaction({
+  const result = await createOrderWithTransaction({
     userId: user.id,
     type: "recharge",
     method: method as "moncash" | "natcash",

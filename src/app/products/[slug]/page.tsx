@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   return {
     title: product?.seoTitle || product?.name || "Product",
     description: product?.seoDescription || product?.shortDescription,
@@ -19,10 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const dbProduct = getProductBySlug(slug);
+  const dbProduct = await getProductBySlug(slug);
   if (!dbProduct) notFound();
   const currentProduct = dbProductToProduct(dbProduct);
-  const products = getProducts().map(dbProductToProduct);
+  const products = (await getProducts()).map(dbProductToProduct);
   const related = products.filter((item) => item.category === currentProduct.category && item.id !== currentProduct.id).slice(0, 4);
 
   return (

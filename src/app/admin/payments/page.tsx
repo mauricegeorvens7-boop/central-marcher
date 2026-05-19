@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPaymentsPage() {
   await requireAdmin();
-  const settings = getPaymentSettings();
-  const transactions = getPaymentTransactions().filter(
+  const [settings, allTransactions] = await Promise.all([getPaymentSettings(), getPaymentTransactions()]);
+  const transactions = allTransactions.filter(
     (tx) => tx.type === "recharge" || tx.method === "moncash" || tx.method === "natcash",
   );
   return (

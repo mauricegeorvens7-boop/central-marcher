@@ -7,9 +7,10 @@ export const metadata = { title: "Admin products" };
 
 export default async function AdminProductsPage() {
   await requireAdmin();
+  const [products, categories] = await Promise.all([getProducts({ includeHidden: true }), getCategories()]);
   return (
     <AdminShell title="Gestion produits">
-      <ProductManager products={getProducts({ includeHidden: true })} categories={getCategories()} />
+      <ProductManager products={products} categories={categories} />
     </AdminShell>
   );
 }

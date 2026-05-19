@@ -5,7 +5,7 @@ import { updateUserProfile } from "@/lib/db";
 export async function PUT(request: NextRequest) {
   const user = await requireUser();
   const body = await request.json().catch(() => ({}));
-  const updated = updateUserProfile(user.id, {
+  const updated = await updateUserProfile(user.id, {
     firstName: String(body.firstName || ""),
     lastName: String(body.lastName || ""),
     gender: String(body.gender || ""),
