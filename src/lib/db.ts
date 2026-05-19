@@ -493,6 +493,7 @@ export function initDb() {
     );
   `);
   ensureUserColumns();
+  ensureDefaultAdmin();
 }
 
 function tableColumns(table: string) {
@@ -595,6 +596,28 @@ function ensureUserColumns() {
     db.prepare("INSERT INTO payment_settings (id,updated_at) VALUES (1,?)").run(now());
   }
   upgradeLegacyHeroBanners();
+}
+
+function ensureDefaultAdmin() {
+  const existingAdmin = db.prepare("SELECT id FROM users WHERE email = ? LIMIT 1").get("admin@store.com") as
+    | { id: string }
+    | undefined;
+  if (existingAdmin) return;
+
+  const timestamp = now();
+  db.prepare(
+    "INSERT INTO users (id,email,password_hash,name,role,phone,profile_photo,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)",
+  ).run(
+    id(),
+    "admin@store.com",
+    bcrypt.hashSync("Admin123456!", 12),
+    "Store Admin",
+    "admin",
+    "+1 555 0100",
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80",
+    timestamp,
+    timestamp,
+  );
 }
 
 function upgradeLegacyHeroBanners() {
