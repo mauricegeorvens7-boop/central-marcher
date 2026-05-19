@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "node --use-system-ca node_modules/next/dist/bin/next start",
     "lint": "eslint",
-    "db:init": "node scripts/init-db.js",
+    "db:init": "node scripts/supabase-init.js",
     "supabase:init": "node scripts/supabase-init.js",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
