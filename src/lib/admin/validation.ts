@@ -69,6 +69,13 @@ export const bannerSchema = z.object({
   imagePosition: z.enum(["left", "right", "center", "top", "bottom"]).optional(),
   textPosition: z.enum(["left", "right", "center"]).optional(),
   size: z.enum(["large", "medium", "small"]).optional(),
+  titleSize: z.enum(["small", "medium", "large", "xlarge"]).optional(),
+  textColor: z.string().min(1).optional(),
+  subtitleColor: z.string().min(1).optional(),
+  fontFamily: z.enum(["sans", "serif", "display", "mono"]).optional(),
+  textBadgeEnabled: z.coerce.boolean().optional(),
+  textBadgeColor: z.string().min(1).optional(),
+  textBadgeTextColor: z.string().min(1).optional(),
   active: z.coerce.boolean(),
 });
 

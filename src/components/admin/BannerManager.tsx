@@ -23,6 +23,13 @@ type BannerForm = {
   imagePosition: DbBanner["imagePosition"];
   textPosition: DbBanner["textPosition"];
   size: DbBanner["size"];
+  titleSize: DbBanner["titleSize"];
+  textColor: string;
+  subtitleColor: string;
+  fontFamily: DbBanner["fontFamily"];
+  textBadgeEnabled: number;
+  textBadgeColor: string;
+  textBadgeTextColor: string;
   active: number;
 };
 
@@ -43,7 +50,21 @@ const empty: BannerForm = {
   imagePosition: "right",
   textPosition: "left",
   size: "large",
+  titleSize: "large",
+  textColor: "#ffffff",
+  subtitleColor: "#ffffff",
+  fontFamily: "sans",
+  textBadgeEnabled: 0,
+  textBadgeColor: "rgba(255,255,255,0.92)",
+  textBadgeTextColor: "#0f172a",
   active: 1,
+};
+
+const fontPreviewClass: Record<DbBanner["fontFamily"], string> = {
+  sans: "font-sans",
+  serif: "font-serif",
+  display: "font-black tracking-wide",
+  mono: "font-mono",
 };
 
 export function BannerManager({ banners }: { banners: DbBanner[] }) {
@@ -199,13 +220,18 @@ export function BannerManager({ banners }: { banners: DbBanner[] }) {
         <div
           className="min-h-24 rounded-lg border border-slate-200 p-4 text-white shadow-inner"
           style={{
-            backgroundColor: editing.backgroundColor,
-            backgroundImage: editing.gradient.trim() || undefined,
-          }}
-        >
-          <p className="text-xs font-black uppercase tracking-wide opacity-80">Aperçu couleur bannière</p>
-          <p className="mt-2 text-2xl font-black">{editing.title || "Titre bannière"}</p>
-          <p className="text-sm font-semibold opacity-90">{editing.subtitle || "Sous-titre promotionnel"}</p>
+          backgroundColor: editing.backgroundColor,
+          backgroundImage: editing.gradient.trim() || undefined,
+        }}
+      >
+        <p className="text-xs font-black uppercase tracking-wide opacity-80">Aperçu couleur bannière</p>
+          <div
+            className={`mt-2 inline-block ${editing.textBadgeEnabled ? "rounded-full px-4 py-2 shadow-sm" : ""}`}
+            style={editing.textBadgeEnabled ? { background: editing.textBadgeColor, color: editing.textBadgeTextColor } : { color: editing.textColor }}
+          >
+            <p className={`text-2xl font-black ${fontPreviewClass[editing.fontFamily]}`}>{editing.title || "Titre bannière"}</p>
+          </div>
+          <p className={`mt-2 text-sm font-semibold opacity-90 ${fontPreviewClass[editing.fontFamily]}`} style={{ color: editing.subtitleColor }}>{editing.subtitle || "Sous-titre promotionnel"}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-2 text-sm font-bold">
@@ -244,6 +270,53 @@ export function BannerManager({ banners }: { banners: DbBanner[] }) {
           </div>
           <span className="text-xs font-semibold text-slate-500">Si ce champ est rempli, il remplace visuellement la couleur simple.</span>
         </label>
+        <div className="rounded-lg border border-slate-200 bg-white p-3">
+          <h3 className="mb-3 text-sm font-black">Style du texte</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-2 text-sm font-bold">
+              Taille titre
+              <select className="field" value={editing.titleSize} onChange={(e) => setEditing({ ...editing, titleSize: e.target.value as typeof editing.titleSize })}>
+                <option value="small">Petite</option>
+                <option value="medium">Moyenne</option>
+                <option value="large">Grande</option>
+                <option value="xlarge">Très grande</option>
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Police
+              <select className="field" value={editing.fontFamily} onChange={(e) => setEditing({ ...editing, fontFamily: e.target.value as typeof editing.fontFamily })}>
+                <option value="sans">Sans moderne</option>
+                <option value="serif">Serif luxe</option>
+                <option value="display">Display bold</option>
+                <option value="mono">Mono tech</option>
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Couleur titre
+              <input className="h-14 w-full rounded-md border border-slate-300 bg-white p-2" type="color" value={editing.textColor} onChange={(e) => setEditing({ ...editing, textColor: e.target.value })} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Couleur sous-titre
+              <input className="h-14 w-full rounded-md border border-slate-300 bg-white p-2" type="color" value={editing.subtitleColor} onChange={(e) => setEditing({ ...editing, subtitleColor: e.target.value })} />
+            </label>
+          </div>
+          <label className="mt-3 flex items-center gap-2 text-sm font-bold">
+            <input type="checkbox" checked={Boolean(editing.textBadgeEnabled)} onChange={(e) => setEditing({ ...editing, textBadgeEnabled: e.target.checked ? 1 : 0 })} />
+            Ajouter un petit fond derrière le titre
+          </label>
+          {Boolean(editing.textBadgeEnabled) && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-2 text-sm font-bold">
+                Couleur fond texte
+                <input className="h-14 w-full rounded-md border border-slate-300 bg-white p-2" type="color" value={editing.textBadgeColor.startsWith("#") ? editing.textBadgeColor : "#ffffff"} onChange={(e) => setEditing({ ...editing, textBadgeColor: e.target.value })} />
+              </label>
+              <label className="grid gap-2 text-sm font-bold">
+                Couleur texte sur fond
+                <input className="h-14 w-full rounded-md border border-slate-300 bg-white p-2" type="color" value={editing.textBadgeTextColor} onChange={(e) => setEditing({ ...editing, textBadgeTextColor: e.target.value })} />
+              </label>
+            </div>
+          )}
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-2 text-sm font-bold">
             Position image

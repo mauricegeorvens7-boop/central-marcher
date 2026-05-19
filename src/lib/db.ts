@@ -68,6 +68,13 @@ export type DbBanner = {
   imagePosition: "left" | "right" | "center" | "top" | "bottom";
   textPosition: "left" | "right" | "center";
   size: "large" | "medium" | "small";
+  titleSize: "small" | "medium" | "large" | "xlarge";
+  textColor: string;
+  subtitleColor: string;
+  fontFamily: "sans" | "serif" | "display" | "mono";
+  textBadgeEnabled: number;
+  textBadgeColor: string;
+  textBadgeTextColor: string;
   active: number;
   createdAt: string;
 };
@@ -602,7 +609,15 @@ export async function getBanners(includeInactive = false) {
       ctaText: String(banner.cta_text), ctaLink: String(banner.cta_link), position: String(banner.position) as DbBanner["position"],
       backgroundColor: String(banner.background_color || "#0f5132"), gradient: banner.gradient == null ? null : String(banner.gradient),
       imagePosition: String(banner.image_position || "right") as DbBanner["imagePosition"], textPosition: String(banner.text_position || "left") as DbBanner["textPosition"],
-      size: String(banner.size || "large") as DbBanner["size"], active: Number(banner.active), createdAt: String(banner.created_at),
+      size: String(banner.size || "large") as DbBanner["size"],
+      titleSize: String(banner.title_size || "large") as DbBanner["titleSize"],
+      textColor: String(banner.text_color || "#ffffff"),
+      subtitleColor: String(banner.subtitle_color || "#ffffff"),
+      fontFamily: String(banner.font_family || "sans") as DbBanner["fontFamily"],
+      textBadgeEnabled: Number(banner.text_badge_enabled || 0),
+      textBadgeColor: String(banner.text_badge_color || "rgba(255,255,255,0.92)"),
+      textBadgeTextColor: String(banner.text_badge_text_color || "#0f172a"),
+      active: Number(banner.active), createdAt: String(banner.created_at),
     };
   });
 }
@@ -611,7 +626,8 @@ export async function saveBanner(input: {
   id?: string; title: string; subtitle: string; imageUrl: string; publicId?: string | null; productImageUrl?: string | null;
   productPublicId?: string | null; productImages?: { url: string; publicId?: string | null }[]; ctaText: string; ctaLink: string;
   position: DbBanner["position"]; backgroundColor?: string; gradient?: string | null; imagePosition?: DbBanner["imagePosition"];
-  textPosition?: DbBanner["textPosition"]; size?: DbBanner["size"]; active: boolean | number;
+  textPosition?: DbBanner["textPosition"]; size?: DbBanner["size"]; titleSize?: DbBanner["titleSize"]; textColor?: string; subtitleColor?: string;
+  fontFamily?: DbBanner["fontFamily"]; textBadgeEnabled?: boolean | number; textBadgeColor?: string; textBadgeTextColor?: string; active: boolean | number;
 }) {
   const bannerId = input.id || id();
   const productImages = input.productImages?.length ? input.productImages.filter((image) => image.url) : input.productImageUrl ? [{ url: input.productImageUrl, publicId: input.productPublicId }] : [];
@@ -619,15 +635,19 @@ export async function saveBanner(input: {
   const values = [
     bannerId, input.title, input.subtitle, input.imageUrl, input.publicId ?? null, primary?.url ?? null, primary?.publicId ?? null,
     JSON.stringify(productImages), input.ctaText, input.ctaLink, input.position, input.backgroundColor || "#0f5132", input.gradient || null,
-    input.imagePosition || "right", input.textPosition || "left", input.size || "large", input.active ? 1 : 0, now(), now(),
+    input.imagePosition || "right", input.textPosition || "left", input.size || "large", input.titleSize || "large", input.textColor || "#ffffff",
+    input.subtitleColor || "#ffffff", input.fontFamily || "sans", input.textBadgeEnabled ? 1 : 0, input.textBadgeColor || "rgba(255,255,255,0.92)",
+    input.textBadgeTextColor || "#0f172a", input.active ? 1 : 0, now(), now(),
   ];
   await q(
-    `INSERT INTO banners (id,title,subtitle,image_url,public_id,product_image_url,product_public_id,product_images_json,cta_text,cta_link,position,background_color,gradient,image_position,text_position,size,active,created_at,updated_at)
+    `INSERT INTO banners (id,title,subtitle,image_url,public_id,product_image_url,product_public_id,product_images_json,cta_text,cta_link,position,background_color,gradient,image_position,text_position,size,title_size,text_color,subtitle_color,font_family,text_badge_enabled,text_badge_color,text_badge_text_color,active,created_at,updated_at)
      VALUES (${values.map((_, i) => `$${i + 1}`).join(",")})
      ON CONFLICT (id) DO UPDATE SET title=EXCLUDED.title,subtitle=EXCLUDED.subtitle,image_url=EXCLUDED.image_url,public_id=EXCLUDED.public_id,
      product_image_url=EXCLUDED.product_image_url,product_public_id=EXCLUDED.product_public_id,product_images_json=EXCLUDED.product_images_json,
      cta_text=EXCLUDED.cta_text,cta_link=EXCLUDED.cta_link,position=EXCLUDED.position,background_color=EXCLUDED.background_color,gradient=EXCLUDED.gradient,
-     image_position=EXCLUDED.image_position,text_position=EXCLUDED.text_position,size=EXCLUDED.size,active=EXCLUDED.active,updated_at=EXCLUDED.updated_at`,
+     image_position=EXCLUDED.image_position,text_position=EXCLUDED.text_position,size=EXCLUDED.size,title_size=EXCLUDED.title_size,text_color=EXCLUDED.text_color,
+     subtitle_color=EXCLUDED.subtitle_color,font_family=EXCLUDED.font_family,text_badge_enabled=EXCLUDED.text_badge_enabled,text_badge_color=EXCLUDED.text_badge_color,
+     text_badge_text_color=EXCLUDED.text_badge_text_color,active=EXCLUDED.active,updated_at=EXCLUDED.updated_at`,
     values,
   );
 }

@@ -159,6 +159,13 @@ async function main() {
       image_position TEXT NOT NULL DEFAULT 'right',
       text_position TEXT NOT NULL DEFAULT 'left',
       size TEXT NOT NULL DEFAULT 'large',
+      title_size TEXT NOT NULL DEFAULT 'large',
+      text_color TEXT NOT NULL DEFAULT '#ffffff',
+      subtitle_color TEXT NOT NULL DEFAULT '#ffffff',
+      font_family TEXT NOT NULL DEFAULT 'sans',
+      text_badge_enabled INTEGER NOT NULL DEFAULT 0,
+      text_badge_color TEXT NOT NULL DEFAULT 'rgba(255,255,255,0.92)',
+      text_badge_text_color TEXT NOT NULL DEFAULT '#0f172a',
       active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
@@ -294,6 +301,16 @@ async function main() {
   `);
 
   await pool.query("INSERT INTO payment_settings (id, updated_at) VALUES (1, $1) ON CONFLICT (id) DO NOTHING", [now()]);
+  await pool.query(`
+    ALTER TABLE banners
+      ADD COLUMN IF NOT EXISTS title_size TEXT NOT NULL DEFAULT 'large',
+      ADD COLUMN IF NOT EXISTS text_color TEXT NOT NULL DEFAULT '#ffffff',
+      ADD COLUMN IF NOT EXISTS subtitle_color TEXT NOT NULL DEFAULT '#ffffff',
+      ADD COLUMN IF NOT EXISTS font_family TEXT NOT NULL DEFAULT 'sans',
+      ADD COLUMN IF NOT EXISTS text_badge_enabled INTEGER NOT NULL DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS text_badge_color TEXT NOT NULL DEFAULT 'rgba(255,255,255,0.92)',
+      ADD COLUMN IF NOT EXISTS text_badge_text_color TEXT NOT NULL DEFAULT '#0f172a'
+  `);
 
   const adminPassword = await bcrypt.hash("Admin123456!", 12);
   await pool.query(

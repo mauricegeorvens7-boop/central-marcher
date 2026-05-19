@@ -3,12 +3,12 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import type { DbBanner } from "@/lib/db";
 
-function bannerBuckets(banners: DbBanner[]) {
-  const heroBanners = banners.filter((banner) => banner.position === "homepage_hero" && banner.active);
+function bannerBuckets(banners: DbBanner[], position: DbBanner["position"]) {
+  const heroBanners = banners.filter((banner) => banner.position === position && banner.active);
   const large = heroBanners.find((banner) => banner.size === "large") || heroBanners[0];
   const medium = heroBanners.find((banner) => banner.id !== large?.id && banner.size === "medium") || heroBanners.find((banner) => banner.id !== large?.id);
   const small = heroBanners.filter((banner) => banner.id !== large?.id && banner.id !== medium?.id).slice(0, 2);
-  return [large, medium, ...small].filter(Boolean) as DbBanner[];
+  return position === "homepage_hero" ? ([large, medium, ...small].filter(Boolean) as DbBanner[]) : heroBanners;
 }
 
 function textAlignClass(position: DbBanner["textPosition"]) {
@@ -40,6 +40,21 @@ function productImageClass(size: DbBanner["size"]) {
   return "max-h-[46%] max-w-[72%]";
 }
 
+function titleSizeClass(size: DbBanner["size"], titleSize: DbBanner["titleSize"]) {
+  const compact = size === "small";
+  if (titleSize === "small") return compact ? "text-xl md:text-2xl" : "text-2xl md:text-3xl";
+  if (titleSize === "medium") return compact ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl";
+  if (titleSize === "xlarge") return compact ? "text-3xl md:text-4xl" : "text-5xl md:text-6xl";
+  return compact ? "text-2xl md:text-3xl" : "text-4xl md:text-5xl";
+}
+
+function fontClass(font: DbBanner["fontFamily"]) {
+  if (font === "serif") return "font-serif";
+  if (font === "display") return "font-sans tracking-wide";
+  if (font === "mono") return "font-mono";
+  return "font-sans";
+}
+
 function productImagesForBanner(banner: DbBanner) {
   return banner.productImages?.length
     ? banner.productImages
@@ -48,7 +63,7 @@ function productImagesForBanner(banner: DbBanner) {
       : [];
 }
 
-function PromoTile({ banner }: { banner: DbBanner }) {
+function PromoTile({ banner, compact = false }: { banner: DbBanner; compact?: boolean }) {
   const backgroundImage = [banner.gradient, banner.imageUrl ? `url(${banner.imageUrl})` : ""].filter(Boolean).join(", ");
   const productImages = productImagesForBanner(banner);
   const style: CSSProperties = {
@@ -59,7 +74,7 @@ function PromoTile({ banner }: { banner: DbBanner }) {
   };
 
   return (
-    <article className={`group relative overflow-hidden rounded-md p-6 text-white shadow-sm ${sizeClass(banner.size)}`} style={style}>
+    <article className={`group relative overflow-hidden rounded-md p-6 text-white shadow-sm ${compact ? "min-h-[240px]" : sizeClass(banner.size)}`} style={style}>
       <div className="absolute inset-0 bg-black/10 transition group-hover:bg-black/5" />
       {productImages.length === 1 && (
         <Image
@@ -90,10 +105,17 @@ function PromoTile({ banner }: { banner: DbBanner }) {
       )}
       <div className={`relative z-20 flex h-full flex-col justify-end gap-4 ${textAlignClass(banner.textPosition)}`}>
         <div className={banner.size === "large" ? "max-w-xl" : "max-w-md"}>
-          <h1 className={banner.size === "large" ? "text-4xl font-black leading-tight md:text-5xl" : "text-2xl font-black leading-tight md:text-3xl"}>
-            {banner.title}
-          </h1>
-          <p className="mt-3 text-base font-semibold leading-7 text-white/95 md:text-lg">{banner.subtitle}</p>
+          <div
+            className={banner.textBadgeEnabled ? "inline-block rounded-full px-4 py-2 shadow-lg backdrop-blur-md" : ""}
+            style={banner.textBadgeEnabled ? { background: banner.textBadgeColor, color: banner.textBadgeTextColor } : { color: banner.textColor }}
+          >
+            <h1 className={`${titleSizeClass(banner.size, banner.titleSize)} font-black leading-tight ${fontClass(banner.fontFamily)}`}>
+              {banner.title}
+            </h1>
+          </div>
+          <p className={`mt-3 text-base font-semibold leading-7 md:text-lg ${fontClass(banner.fontFamily)}`} style={{ color: banner.subtitleColor }}>
+            {banner.subtitle}
+          </p>
         </div>
         <Link href={banner.ctaLink} className="inline-flex h-12 items-center justify-center rounded-md bg-white px-6 text-sm font-black text-emerald-900 shadow-sm transition hover:bg-amber-50">
           {banner.ctaText}
@@ -103,13 +125,38 @@ function PromoTile({ banner }: { banner: DbBanner }) {
   );
 }
 
-export function HomePromoGrid({ banners }: { banners: DbBanner[] }) {
-  const tiles = bannerBuckets(banners);
+export function HomePromoGrid({ banners, position = "homepage_hero", mode = "hero" }: { banners: DbBanner[]; position?: DbBanner["position"]; mode?: "hero" | "strip" }) {
+  const tiles = bannerBuckets(banners, position);
   if (!tiles.length) return null;
+
+  if (mode === "strip") {
+    return (
+      <section className="mx-auto max-w-7xl px-4 py-5">
+        <div className="-mx-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex snap-x snap-mandatory gap-4">
+            {tiles.map((banner) => (
+              <div key={banner.id} className="min-w-[84vw] snap-center md:min-w-[520px] lg:min-w-[620px]">
+                <PromoTile banner={banner} compact />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="-mx-4 overflow-x-auto px-4 pb-3 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex snap-x snap-mandatory gap-4">
+          {tiles.map((banner) => (
+            <div key={banner.id} className="min-w-[86vw] snap-center">
+              <PromoTile banner={banner} compact />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="hidden gap-4 md:grid lg:grid-cols-2">
         <div className="grid gap-4">
           {tiles[0] && <PromoTile banner={tiles[0]} />}
         </div>
