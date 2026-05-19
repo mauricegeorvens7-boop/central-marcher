@@ -1,5 +1,6 @@
 import "server-only";
 import { mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
@@ -219,7 +220,9 @@ export type PaymentTransaction = {
   createdAt: string;
 };
 
-const dbPath = join(process.cwd(), "data", "store.db");
+const dbPath = process.env.VERCEL
+  ? join(tmpdir(), "central-marcher", "store.db")
+  : join(process.cwd(), "data", "store.db");
 mkdirSync(dirname(dbPath), { recursive: true });
 
 const db = new DatabaseSync(dbPath);
